@@ -9,15 +9,15 @@
 <body>
     <div class="container">
         <header>
-            <h1>Daily Calorie & TDEE Tracker</h1>
+            <h1>FitTrack <span>Pro</span></h1>
             <div class="date-display" id="currentDate"></div>
         </header>
 
         <main class="grid-layout">
             <section class="card tdee-section">
-                <h2>1. Profile & TDEE</h2>
+                <h2>Profile & Burn</h2>
                 <div class="form-group">
-                    <label>Gender:</label>
+                    <label>Gender</label>
                     <select id="gender">
                         <option value="male">Male</option>
                         <option value="female">Female</option>
@@ -25,15 +25,15 @@
                 </div>
                 <div class="form-group-row">
                     <div class="form-group">
-                        <label>Age (yrs):</label>
+                        <label>Age (yrs)</label>
                         <input type="number" id="age" value="25" min="1">
                     </div>
                     <div class="form-group">
-                        <label>Weight (kg):</label>
+                        <label>Weight (kg)</label>
                         <input type="number" id="weight" value="70" min="1">
                     </div>
                     <div class="form-group">
-                        <label>Height (cm):</label>
+                        <label>Height (cm)</label>
                         <input type="number" id="height" value="175" min="1">
                     </div>
                 </div>
@@ -41,69 +41,69 @@
                     <strong>Base Metabolic Rate (BMR):</strong> <span id="bmrDisplay">0</span> kcal
                 </div>
 
-                <h3>Add Activity</h3>
+                <h3>Log Activity</h3>
                 <div class="form-group-row align-end">
-                    <div class="form-group">
-                        <label>Activity:</label>
+                    <div class="form-group" style="flex: 2;">
+                        <label>Activity</label>
                         <select id="activitySelect"></select>
                     </div>
-                    <div class="form-group">
-                        <label>Minutes:</label>
-                        <input type="number" id="activityDuration" value="30" min="1">
+                    <div class="form-group" style="flex: 1;">
+                        <label id="activityInputLabel">Steps</label>
+                        <input type="number" id="activityInput" value="5000" min="1">
                     </div>
-                    <button id="addActivityBtn">Add</button>
+                    <button id="addActivityBtn">+</button>
                 </div>
                 <ul id="activityList" class="item-list"></ul>
                 <div class="stats-box highlight">
-                    <strong>Total Daily Energy Expenditure (TDEE):</strong> <span id="tdeeDisplay">0</span> kcal
+                    <strong>Total Burned (TDEE):</strong> <span id="tdeeDisplay">0</span> kcal
                 </div>
             </section>
 
             <section class="card food-section">
-                <h2>2. Food Intake</h2>
+                <h2>Food Intake</h2>
                 
                 <h3>Log Food</h3>
                 <div class="form-group-row align-end">
-                    <div class="form-group">
-                        <label>Select Food:</label>
+                    <div class="form-group" style="flex: 2;">
+                        <label>Select Food</label>
                         <select id="foodSelect"></select>
                     </div>
-                    <div class="form-group">
-                        <label>Amount (grams):</label>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Amount (g/ml)</label>
                         <input type="number" id="foodAmount" value="100" min="1">
                     </div>
-                    <button id="addFoodBtn">Log</button>
+                    <button id="addFoodBtn">+</button>
                 </div>
 
                 <details class="custom-food-dropdown">
-                    <summary>+ Add Custom Food to Database</summary>
+                    <summary>+ Add Custom Food</summary>
                     <div class="custom-food-form">
-                        <input type="text" id="customFoodName" placeholder="Food Name">
-                        <input type="number" id="customFoodCal" placeholder="Kcal per 100g">
-                        <input type="number" id="customFoodP" placeholder="Protein (g)">
-                        <input type="number" id="customFoodC" placeholder="Carbs (g)">
+                        <input type="text" id="customFoodName" placeholder="Name">
+                        <input type="number" id="customFoodCal" placeholder="Kcal/100g">
+                        <input type="number" id="customFoodP" placeholder="Pro (g)">
+                        <input type="number" id="customFoodC" placeholder="Carb (g)">
                         <input type="number" id="customFoodF" placeholder="Fat (g)">
-                        <button id="saveCustomFoodBtn">Save Food</button>
+                        <button id="saveCustomFoodBtn">Save to DB</button>
                     </div>
                 </details>
 
                 <h3>Today's Log</h3>
                 <ul id="foodLogList" class="item-list"></ul>
-                <div class="stats-box">
-                    <div><strong>Total Intake:</strong> <span id="intakeDisplay">0</span> kcal</div>
+                <div class="stats-box highlight">
+                    <div style="margin-bottom: 8px;"><strong>Total Intake:</strong> <span id="intakeDisplay">0</span> kcal</div>
                     <div class="macros-display">
-                        Protein: <span id="proteinDisplay">0</span>g | 
-                        Carbs: <span id="carbsDisplay">0</span>g | 
-                        Fat: <span id="fatDisplay">0</span>g
+                        <span class="macro-badge pro">P: <span id="proteinDisplay">0</span>g</span>
+                        <span class="macro-badge carb">C: <span id="carbsDisplay">0</span>g</span>
+                        <span class="macro-badge fat">F: <span id="fatDisplay">0</span>g</span>
                     </div>
                 </div>
             </section>
 
             <section class="card summary-section">
-                <h2>3. Daily Summary</h2>
+                <h2>Daily Summary</h2>
                 <div class="summary-box" id="summaryBox">
                     <h3 id="statusHeading">Calculating...</h3>
-                    <p id="calorieDifference">Difference: 0 kcal</p>
+                    <p id="calorieDifference" class="difference-text">Difference: 0 kcal</p>
                     <p id="weightGoalEstimation" class="estimation-text"></p>
                 </div>
             </section>
