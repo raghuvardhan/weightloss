@@ -1,11 +1,11 @@
 const state = {
     date: new Date().toISOString().split('T')[0],
     profile: { gender: 'male', age: 25, weight: 70, height: 175 },
-    activities: [],
+    activities: [], // Will now strictly store { id, actId, amount }
     foodLog: []
 };
 
-// 1. Updated Food DB (Approx macros per 100g or 100ml)
+// 1. Food DB 
 let foodDB = [
     { id: '1', name: 'Sambar', cal: 50, p: 2, c: 8, f: 1 },
     { id: '2', name: 'Vegetable Curry', cal: 80, p: 2, c: 10, f: 4 },
@@ -26,8 +26,7 @@ let foodDB = [
     { id: '17', name: 'Idly', cal: 106, p: 3, c: 23, f: 0.4 }
 ];
 
-// 2. Updated Activity DB with Dynamic Units
-// unitToHours converts the inputted unit into hours for the MET calculation formula
+// 2. Activity DB
 const activityDB = [
     { id: '1', name: 'Walking', met: 3.5, unit: 'Steps', unitToHours: (steps) => steps / 6000 }, 
     { id: '2', name: 'Weight Lifting', met: 5.0, unit: 'Minutes', unitToHours: (mins) => mins / 60 },
@@ -63,10 +62,11 @@ function attachEventListeners() {
     // Add Activity
     document.getElementById('addActivityBtn').addEventListener('click', () => {
         const amount = parseInt(document.getElementById('activityInput').value);
+        const actId = document.getElementById('activitySelect').value;
         if (!amount) return;
 
-        const act = activityDB.find(a => a.id === document.getElementById('activitySelect').value);
-        state.activities.push({ id: Date.now(), name: act.name, met: act.met, amount: amount, unit: act.unit, unitToHours: act.unitToHours.toString() });
+        // SAFELY save only the reference ID and the amount
+        state.activities.push({ id: Date.now(), actId: actId, amount: amount });
         saveData();
         updateAll();
     });
@@ -127,11 +127,13 @@ function calculateTDEE() {
     bmr += (gender === 'male') ? 5 : -161;
     
     let activityCals = 0;
-    state.activities.forEach(act => {
-        // Re-hydrate the function from string if loaded from localStorage
-        const toHoursFunc = typeof act.unitToHours === 'string' ? eval(act.unitToHours) : act.unitToHours;
-        const hours = toHoursFunc(act.amount);
-        activityCals += act.met * w * hours;
+    state.activities.forEach(log => {
+        // Look up the math formula securely from the DB
+        const dbAct = activityDB.find(a => a.id === log.actId);
+        if (dbAct) {
+            const hours = dbAct.unitToHours(log.amount);
+            activityCals += dbAct.met * w * hours;
+        }
     });
 
     currentTDEE = Math.round(bmr + activityCals);
@@ -176,15 +178,18 @@ function calculateSummary() {
 }
 
 function renderLists() {
-    document.getElementById('activityList').innerHTML = state.activities.map(a => 
-        `<li>
+    document.getElementById('activityList').innerHTML = state.activities.map(log => {
+        const dbAct = activityDB.find(a => a.id === log.actId);
+        if (!dbAct) return ''; // Skip if activity was deleted from DB
+        
+        return `<li>
             <div class="list-header">
-                <span>${a.name}</span>
-                <button class="delete-btn" onclick="deleteItem('act', ${a.id})">X</button>
+                <span>${dbAct.name}</span>
+                <button class="delete-btn" onclick="deleteItem('act', ${log.id})">X</button>
             </div>
-            <div class="list-macros">${a.amount} ${a.unit} logged</div>
+            <div class="list-macros">${log.amount} ${dbAct.unit} logged</div>
         </li>`
-    ).join('');
+    }).join('');
 
     document.getElementById('foodLogList').innerHTML = state.foodLog.map(f => 
         `<li>
@@ -205,7 +210,7 @@ function populateDropdowns() {
     
     // Trigger initial label set
     const selectedAct = activityDB.find(a => a.id === document.getElementById('activitySelect').value);
-    document.getElementById('activityInputLabel').textContent = selectedAct.unit;
+    if(selectedAct) document.getElementById('activityInputLabel').textContent = selectedAct.unit;
 }
 
 window.deleteItem = function(type, id) {
@@ -224,7 +229,14 @@ function loadData() {
     if (todayData) {
         const parsed = JSON.parse(todayData);
         state.profile = parsed.profile;
-        state.activities = parsed.activities || [];
+        
+        // Data Migration Safeguard: Wipe old broken activity data to prevent crashes
+        if (parsed.activities && parsed.activities.length > 0 && parsed.activities[0].unitToHours) {
+            state.activities = []; 
+        } else {
+            state.activities = parsed.activities || [];
+        }
+        
         state.foodLog = parsed.foodLog || [];
         
         document.getElementById('gender').value = state.profile.gender;
